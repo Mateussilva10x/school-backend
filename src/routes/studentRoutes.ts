@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authenticateToken } from '../middlewares/authMiddleware';
 import {
   getFilteredStudents,
   getStudentById,
@@ -9,10 +10,10 @@ import {
 
 const router = Router();
 
-router.get('/', getFilteredStudents);
-router.get('/:id', getStudentById);
-router.post('/', createStudent);
-router.put('/:id', updateStudent);
-router.delete('/:id', deleteStudent);
+router.get('/', authenticateToken, getFilteredStudents);
+router.get('/:id', authenticateToken, getStudentById);
+router.post('/', authenticateToken, createStudent);
+router.put('/:id', authenticateToken, updateStudent);
+router.delete('/:id', authenticateToken, deleteStudent);
 
 export default router;

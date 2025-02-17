@@ -1,40 +1,47 @@
-import { Teacher } from '../models/Teacher';
-import { getSubjectById } from './subjectService';
+import { PrismaClient } from '@prisma/client';
 
-let teachers: Teacher[] = [
-  { id: '1', name: 'Maria Oliveira', birthDate: '1985-03-10', refSubject: '1' },
-  { id: '2', name: 'João Santos', birthDate: '1982-07-15', refSubject: '2' },
-  { id: '3', name: 'Ana Silva', birthDate: '1988-11-22', refSubject: '3' }
-];
+const prisma = new PrismaClient();
 
-export const getFilteredTeachers = (refSubject?: string): Teacher[] => {
-  return teachers.filter(teacher =>
-    (!refSubject || teacher.refSubject === refSubject)
-  );
+// 🔹 Buscar professores (com nome da matéria)
+export const getFilteredTeachers = async (refSubject?: string) => {
+  return await prisma.teacher.findMany({
+    where: {
+      refSubject: refSubject || undefined
+    },
+    include: { subject: true } // ✅ Agora essa linha funcionará
+  });
 };
 
-export const getTeacherById = (id: string): Teacher | undefined => {
-  const teacher = teachers.find(t => t.id === id);
-  return teacher ? { ...teacher, refSubject: getSubjectById(teacher.refSubject)?.name || 'Desconhecido' } : undefined;
+// 🔹 Buscar professor por ID
+export const getTeacherById = async (id: string) => {
+  return await prisma.teacher.findUnique({
+    where: { id },
+    include: { subject: true }
+  });
 };
 
-export const createTeacher = (newTeacher: Omit<Teacher, 'id'>): Teacher => {
-  const newItem: Teacher = { ...newTeacher, id: (teachers.length + 1).toString() };
-  teachers.push(newItem);
-  return newItem;
+// 🔹 Criar um novo professor (agora sem `schoolYear`)
+export const createTeacher = async (newTeacher: { name: string; birthDate: string; refSubject: string }) => {
+  return await prisma.teacher.create({
+    data: {
+      name: newTeacher.name,
+      birthDate: new Date(newTeacher.birthDate), // ✅ Converte para Date
+      refSubject: newTeacher.refSubject
+    }
+  });
 };
 
-export const updateTeacher = (id: string, teacherData: Partial<Teacher>): Teacher | undefined => {
-  const index = teachers.findIndex(teacher => teacher.id === id);
-  if (index !== -1) {
-    teachers[index] = { ...teachers[index], ...teacherData };
-    return teachers[index];
-  }
-  return undefined;
+// 🔹 Atualizar um professor existente
+export const updateTeacher = async (id: string, teacherData: Partial<{ name: string; birthDate: string; refSubject: string }>) => {
+  return await prisma.teacher.update({
+    where: { id },
+    data: teacherData
+  });
 };
 
-export const deleteTeacher = (id: string): boolean => {
-  const initialLength = teachers.length;
-  teachers = teachers.filter(teacher => teacher.id !== id);
-  return teachers.length < initialLength;
+// 🔹 Deletar professor
+export const deleteTeacher = async (id: string) => {
+  return await prisma.teacher.delete({
+    where: { id }
+  });
 };

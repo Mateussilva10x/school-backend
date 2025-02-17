@@ -1,54 +1,69 @@
-import { Grades } from '../models/Grades';
+import { PrismaClient } from '@prisma/client';
 
-let grades: Grades[] = [];
+const prisma = new PrismaClient();
 
 // 🔹 Filtrar notas por turma, ano letivo, disciplina e bimestre
-export const getGradesByFilters = (classId: string, schoolYear: string, subjectId: string, bimester: string): Grades[] => {
-  return grades.filter(grade =>
-    grade.refSubject === subjectId &&
-    grade.refBimester === bimester &&
-    grade.schoolYear === schoolYear
-  );
+export const getGradesByFilters = async (classId: string, schoolYear: string, subjectId: string, bimester: string) => {
+  return await prisma.grade.findMany({
+    where: {
+      refSubject: subjectId,
+      refBimester: bimester,
+      schoolYear
+    }
+  });
 };
 
 // 🔹 Obter notas de um aluno
-export const getGradesByStudent = (studentId: string, schoolYear: string): Grades[] => {
-  return grades.filter(grade =>
-    grade.refStudent === studentId &&
-    grade.schoolYear === schoolYear
-  );
+export const getGradesByStudent = async (studentId: string, schoolYear: string) => {
+  return await prisma.grade.findMany({
+    where: {
+      refStudent: studentId,
+      schoolYear
+    }
+  });
 };
 
-// 🔹 Obter notas de um aluno em um bimestre
-export const getGradesByStudentAndBimester = (studentId: string, bimester: string): Grades[] => {
-  return grades.filter(grade =>
-    grade.refStudent === studentId &&
-    grade.refBimester === bimester
-  );
+// 🔹 Obter notas de um aluno em um bimestre específico
+export const getGradesByStudentAndBimester = async (studentId: string, bimester: string) => {
+  return await prisma.grade.findMany({
+    where: {
+      refStudent: studentId,
+      refBimester: bimester
+    }
+  });
 };
 
 // 🔹 Salvar ou atualizar uma nota
-export const saveGrade = (grade: Omit<Grades, 'id' | 'average'>): Grades => {
-  const existingIndex = grades.findIndex(g =>
-    g.refStudent === grade.refStudent &&
-    g.refSubject === grade.refSubject &&
-    g.refBimester === grade.refBimester &&
-    g.schoolYear === grade.schoolYear
-  );
+export const saveGrade = async (grade: { refStudent: string; refSubject: string; refBimester: string; schoolYear: string; p1: number; p2: number; rec: number }) => {
+  const existingGrade = await prisma.grade.findFirst({
+    where: {
+      refStudent: grade.refStudent,
+      refSubject: grade.refSubject,
+      refBimester: grade.refBimester,
+      schoolYear: grade.schoolYear
+    }
+  });
 
-  const newGrade: Grades = {
-    ...grade,
-    id: existingIndex >= 0 ? grades[existingIndex].id : Math.random().toString(36).substring(7),
-    average: calculateAverage(grade.p1, grade.p2)
-  };
+  const average = calculateAverage(grade.p1, grade.p2);
 
-  if (existingIndex >= 0) {
-    grades[existingIndex] = newGrade;
+  if (existingGrade) {
+    return await prisma.grade.update({
+      where: { id: existingGrade.id },
+      data: {
+        p1: grade.p1,
+        p2: grade.p2,
+        rec: grade.rec,
+        average
+      }
+    });
   } else {
-    grades.push(newGrade);
+    return await prisma.grade.create({
+      data: {
+        ...grade,
+        average
+      }
+    });
   }
-
-  return newGrade;
 };
 
 // 🔹 Calcular média das notas

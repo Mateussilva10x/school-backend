@@ -1,25 +1,26 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { Student } from '../models/Student';
+import { PrismaClient } from '@prisma/client';
 
-interface Grade {
-  subject: string;
-  refBimester: string;
-  p1: number;
-  p2: number;
-  rec: number;
-  average: number;
-}
+const prisma = new PrismaClient();
 
-const mockGrades: Grade[] = [
-  { subject: 'Matemática', refBimester: '1', p1: 8.5, p2: 7.5, rec: 0, average: 8.0 },
-  { subject: 'Português', refBimester: '1', p1: 6.0, p2: 7.0, rec: 8.0, average: 6.5 },
-  { subject: 'Ciências', refBimester: '2', p1: 9.0, p2: 8.5, rec: 0, average: 8.75 },
-  { subject: 'Matemática', refBimester: '3', p1: 7.0, p2: 6.5, rec: 7.5, average: 7.0 },
-  { subject: 'Português', refBimester: '4', p1: 6.5, p2: 7.5, rec: 0, average: 7.0 }
-];
+// 🔹 Gerar boletim do aluno
+export const generateStudentReport = async (studentId: string): Promise<Buffer> => {
+  // 🔹 Buscar aluno no banco
+  const student = await prisma.student.findUnique({
+    where: { id: studentId }
+  });
 
-export const generateStudentReport = (student: Student): Buffer => {
+  if (!student) {
+    throw new Error('Aluno não encontrado');
+  }
+
+  // 🔹 Buscar notas do aluno no banco
+  const grades = await prisma.grade.findMany({
+    where: { refStudent: studentId },
+    include: { subject: true }
+  });
+
   const doc = new jsPDF();
   doc.setFontSize(16);
   doc.text(`Boletim Escolar`, 105, 15, { align: 'center' });
@@ -30,12 +31,19 @@ export const generateStudentReport = (student: Student): Buffer => {
 
   let startY = 50;
 
-  // Organizar notas por bimestre
-  const organizedGrades: Record<string, Grade[]> = { '1': [], '2': [], '3': [], '4': [] };
-  mockGrades.forEach(grade => {
-    organizedGrades[grade.refBimester].push(grade);
+  // 🔹 Organizar notas por bimestre
+  const organizedGrades: Record<string, any[]> = { '1': [], '2': [], '3': [], '4': [] };
+  grades.forEach(grade => {
+    organizedGrades[grade.refBimester].push({
+      subject: grade.subject?.name || 'Desconhecido',
+      p1: grade.p1,
+      p2: grade.p2,
+      average: grade.average,
+      rec: grade.rec
+    });
   });
 
+  // 🔹 Criar tabelas para cada bimestre
   Object.keys(organizedGrades).forEach(bimester => {
     if (organizedGrades[bimester].length > 0) {
       doc.setFontSize(14);

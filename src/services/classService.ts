@@ -1,50 +1,58 @@
-import { Class } from '../models/Class';
+import { PrismaClient } from '@prisma/client';
 import { getStudentsByClass } from './studentService';
 
-let classes: Class[] = [
-  { id: '1', name: 'Turma A', schoolYear: '2024' },
-  { id: '2', name: 'Turma B', schoolYear: '2024' },
-  { id: '3', name: 'Turma C', schoolYear: '2023' }
-];
+const prisma = new PrismaClient();
 
 // 🔹 Função para calcular o total de alunos por turma
-const calculateTotalStudents = (classId: string): number => {
-  return getStudentsByClass(classId).length;
+export const calculateTotalStudents = async (classId: string): Promise<number> => {
+  const students = await getStudentsByClass(classId);
+  return students.length;
 };
 
-// 🔹 Retorna todas as turmas com o total de alunos
-export const getFilteredClasses = (schoolYear?: string): Class[] => {
-  return classes
-    .filter(cls => (!schoolYear || cls.schoolYear === schoolYear))
-    .map(cls => ({ ...cls, totalStudents: calculateTotalStudents(cls.id) }));
+// 🔹 Retorna todas as turmas (com filtro por ano letivo)
+export const getFilteredClasses = async (schoolYear?: string) => {
+  const classes = await prisma.class.findMany({
+    where: schoolYear ? { schoolYear } : {}
+  });
+
+  return await Promise.all(
+    classes.map(async (cls) => ({
+      ...cls,
+      totalStudents: await calculateTotalStudents(cls.id)
+    }))
+  );
 };
 
 // 🔹 Busca uma turma pelo ID (com total de alunos)
-export const getClassById = (id: string): Class | undefined => {
-  const classItem = classes.find(c => c.id === id);
-  return classItem ? { ...classItem, totalStudents: calculateTotalStudents(classItem.id) } : undefined;
+export const getClassById = async (id: string) => {
+  const classItem = await prisma.class.findUnique({ where: { id } });
+
+  if (!classItem) return null;
+
+  return {
+    ...classItem,
+    totalStudents: await calculateTotalStudents(classItem.id)
+  };
 };
 
 // 🔹 Cria uma nova turma
-export const createClass = (newClass: Omit<Class, 'id' | 'totalStudents'>): Class => {
-  const newClassItem: Class = { ...newClass, id: (classes.length + 1).toString() };
-  classes.push(newClassItem);
-  return { ...newClassItem, totalStudents: calculateTotalStudents(newClassItem.id) };
+export const createClass = async (newClass: { name: string; schoolYear: string }) => {
+  return await prisma.class.create({
+    data: newClass
+  });
 };
 
 // 🔹 Atualiza uma turma existente
-export const updateClass = (id: string, classData: Partial<Omit<Class, 'totalStudents'>>): Class | undefined => {
-  const index = classes.findIndex(c => c.id === id);
-  if (index !== -1) {
-    classes[index] = { ...classes[index], ...classData };
-    return { ...classes[index], totalStudents: calculateTotalStudents(classes[index].id) };
-  }
-  return undefined;
+export const updateClass = async (id: string, classData: Partial<{ name: string; schoolYear: string }>) => {
+  return await prisma.class.update({
+    where: { id },
+    data: classData
+  });
 };
 
 // 🔹 Exclui uma turma
-export const deleteClass = (id: string): boolean => {
-  const initialLength = classes.length;
-  classes = classes.filter(cls => cls.id !== id);
-  return classes.length < initialLength;
+export const deleteClass = async (id: string) => {
+  return await prisma.class.delete({
+    where: { id }
+  });
 };
