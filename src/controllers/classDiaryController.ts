@@ -30,7 +30,7 @@ export const getClassDiaryById = async (
       return;
     }
 
-    res.json(diaryEntry); // ✅ Apenas responde sem retornar o `res.json()`
+    res.json(diaryEntry);
   } catch (error) {
     res
       .status(500)

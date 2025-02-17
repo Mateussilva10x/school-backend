@@ -4,4 +4,5 @@ export interface User {
   role: 'ADMIN' | 'TEACHER';
   password?: string;
   token?: string;
+  createdAt?: string
 }

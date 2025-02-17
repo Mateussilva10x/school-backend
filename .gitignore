@@ -43,3 +43,4 @@ prisma/dev.db-journal
 
 # Docker
 docker-compose.override.yml
+.vercel
