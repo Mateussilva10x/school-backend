@@ -14,29 +14,31 @@ model Student {
   refClass   String
   schoolYear String
   class      Class    @relation(fields: [refClass], references: [id])
-  grades     Grade[] 
+  grades     Grade[]
 }
 
 model Class {
-  id         String    @id @default(uuid())
-  name       String
-  schoolYear String
-  students   Student[] // Relação com os alunos
+  id           String       @id @default(uuid())
+  name         String
+  schoolYear   String
+  students     Student[] // Relação com os alunos
+  classDiaries ClassDiary[]
 }
 
 model Teacher {
-  id         String  @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   birthDate  DateTime
   refSubject String
-  subject    Subject @relation(fields: [refSubject], references: [id])
+  subject    Subject  @relation(fields: [refSubject], references: [id])
 }
 
 model Subject {
-  id   String @id @default(uuid())
-  name String
-  grades  Grade[]
-  teachers Teacher[]
+  id           String       @id @default(uuid())
+  name         String
+  grades       Grade[]
+  teachers     Teacher[]
+  classDiaries ClassDiary[]
 }
 
 model Grade {
@@ -58,4 +60,15 @@ model User {
   email    String @unique
   password String
   role     String
+}
+
+model ClassDiary {
+  id         String   @id @default(uuid())
+  date       DateTime @default(now())
+  schoolYear String
+  refClass   String
+  class      Class    @relation(fields: [refClass], references: [id])
+  refSubject String
+  subject    Subject  @relation(fields: [refSubject], references: [id])
+  summary    String
 }
