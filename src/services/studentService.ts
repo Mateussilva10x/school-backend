@@ -1,42 +1,57 @@
-import { Student } from '../models/Student';
+import { PrismaClient } from '@prisma/client';
 
-let students: Student[] = [
-  { id: '1', name: 'João Silva', birthDate: '2010-05-15', refClass: '1', schoolYear: '2024' },
-  { id: '2', name: 'Maria Santos', birthDate: '2009-08-22', refClass: '1', schoolYear: '2024' },
-  { id: '3', name: 'Pedro Oliveira', birthDate: '2010-03-10', refClass: '2', schoolYear: '2024' }
-];
+const prisma = new PrismaClient();
 
-export const getFilteredStudents = (name?: string, classId?: string, schoolYear?: string): Student[] => {
-  return students.filter(student =>
-    (!name || student.name.toLowerCase().includes(name.toLowerCase())) &&
-    (!classId || student.refClass === classId) &&
-    (!schoolYear || student.schoolYear === schoolYear)
-  );
+// 🔹 Filtrar alunos por nome, turma e ano letivo
+export const getFilteredStudents = async (name?: string, classId?: string, schoolYear?: string) => {
+  return await prisma.student.findMany({
+    where: {
+      name: name ? { contains: name, mode: 'insensitive' } : undefined,
+      refClass: classId || undefined,
+      schoolYear: schoolYear || undefined
+    }
+  });
 };
 
-export const getStudentsByClass = (classId: string): Student[] => {
-  return students.filter(student => student.refClass === classId)
-}
-
-export const getStudentById = (id: string): Student | undefined =>
-  students.find(student => student.id === id);
-
-export const createStudent = (newStudent: Student): Student => {
-  students.push(newStudent);
-  return newStudent;
+// 🔹 Buscar alunos por turma
+export const getStudentsByClass = async (classId: string) => {
+  return await prisma.student.findMany({
+    where: { refClass: classId }
+  });
 };
 
-export const updateStudent = (id: string, updatedStudent: Student): Student | undefined => {
-  const index = students.findIndex(student => student.id === id);
-  if (index !== -1) {
-    students[index] = { ...students[index], ...updatedStudent };
-    return students[index];
-  }
-  return undefined;
+// 🔹 Buscar um aluno pelo ID
+export const getStudentById = async (id: string) => {
+  const student = await prisma.student.findUnique({
+    where: { id }
+  });
+
+  if (!student) return null;
+
+  return {
+    ...student,
+    birthDate: student.birthDate.toISOString().split('T')[0] // 🔹 Converte Date para string no formato YYYY-MM-DD
+  };
 };
 
-export const deleteStudent = (id: string): boolean => {
-  const initialLength = students.length;
-  students = students.filter(student => student.id !== id);
-  return students.length < initialLength;
+// 🔹 Criar um novo aluno
+export const createStudent = async (newStudent: { name: string; birthDate: Date; refClass: string; schoolYear: string }) => {
+  return await prisma.student.create({
+    data: newStudent
+  });
+};
+
+// 🔹 Atualizar um aluno existente
+export const updateStudent = async (id: string, updatedStudent: Partial<{ name: string; birthDate: Date; refClass: string; schoolYear: string }>) => {
+  return await prisma.student.update({
+    where: { id },
+    data: updatedStudent
+  });
+};
+
+// 🔹 Deletar um aluno
+export const deleteStudent = async (id: string) => {
+  return await prisma.student.delete({
+    where: { id }
+  });
 };

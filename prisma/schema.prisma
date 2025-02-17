@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id         String   @id @default(uuid())
+  name       String
+  birthDate  DateTime
+  refClass   String
+  schoolYear String
+  class      Class    @relation(fields: [refClass], references: [id])
+  grades     Grade[] // Relação com as notas
+}
+
+model Class {
+  id         String    @id @default(uuid())
+  name       String
+  schoolYear String
+  students   Student[] // Relação com os alunos
+}
+
+model Teacher {
+  id         String   @id @default(uuid())
+  name       String
+  birthDate  DateTime
+  refSubject String
+  schoolYear String
+}
+
+model Subject {
+  id   String @id @default(uuid())
+  name String
+}
+
+model Grade {
+  id          String  @id @default(uuid())
+  refStudent  String
+  refSubject  String
+  refBimester String
+  schoolYear  String
+  p1          Float
+  p2          Float
+  rec         Float
+  average     Float
+  student     Student @relation(fields: [refStudent], references: [id]) // Correção: ligação com Student
+}
