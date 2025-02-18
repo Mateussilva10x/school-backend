@@ -4,7 +4,6 @@ import { getFilteredClasses, getClassById, createClass, updateClass, deleteClass
 
 const router = Router();
 
-// 🔹 Agora todas as rotas exigem autenticação
 router.get('/', authenticateToken, getFilteredClasses);
 router.get('/:id', authenticateToken, getClassById);
 router.post('/', authenticateToken, createClass);

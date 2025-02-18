@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// 🔹 Criar usuário
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, role } = req.body;
@@ -18,7 +17,6 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-// 🔹 Buscar todos os usuários
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await prisma.user.findMany();
@@ -28,7 +26,6 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-// 🔹 Buscar usuário por ID
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.params.id } });
@@ -44,7 +41,6 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-// 🔹 Atualizar usuário
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, role } = req.body;
@@ -60,7 +56,6 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-// 🔹 Deletar usuário
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     await prisma.user.delete({ where: { id: req.params.id } });

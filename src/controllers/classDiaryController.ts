@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import * as classDiaryService from "../services/classDiaryService";
 
-// 🔹 Buscar todos os resumos com filtros opcionais
 export const getClassDiaries = async (req: Request, res: Response) => {
   try {
     const { refClass, refSubject, date } = req.query;
@@ -16,7 +15,6 @@ export const getClassDiaries = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 Buscar um resumo pelo ID
 export const getClassDiaryById = async (
   req: Request,
   res: Response
@@ -41,7 +39,6 @@ export const getClassDiaryById = async (
   }
 };
 
-// 🔹 Criar um novo resumo
 export const createClassDiary = async (req: Request, res: Response) => {
   try {
     const newDiary = await classDiaryService.createClassDiary(req.body);
@@ -51,7 +48,6 @@ export const createClassDiary = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 Atualizar um resumo existente
 export const updateClassDiary = async (req: Request, res: Response) => {
   try {
     const updatedDiary = await classDiaryService.updateClassDiary(
@@ -64,7 +60,6 @@ export const updateClassDiary = async (req: Request, res: Response) => {
   }
 };
 
-// 🔹 Deletar um resumo
 export const deleteClassDiary = async (req: Request, res: Response) => {
   try {
     await classDiaryService.deleteClassDiary(req.params.id);

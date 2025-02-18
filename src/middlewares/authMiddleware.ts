@@ -7,7 +7,6 @@ export interface AuthRequest extends Request {
   user?: { id: string; email: string; role: string };
 }
 
-// 🔹 Middleware para verificar o token JWT corretamente
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const token = req.header('Authorization')?.split(' ')[1];
 
@@ -19,7 +18,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   try {
     const decoded = jwt.verify(token, SECRET_KEY) as { id: string; email: string; role: string };
     req.user = decoded;
-    next(); // 🔹 Chama `next()` para continuar a requisição
+    next();
   } catch (error) {
     res.status(401).json({ message: 'Token inválido ou expirado' });
   }

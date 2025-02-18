@@ -4,9 +4,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// 🔹 Gerar boletim do aluno
 export const generateStudentReport = async (studentId: string): Promise<Buffer> => {
-  // 🔹 Buscar aluno no banco
+
   const student = await prisma.student.findUnique({
     where: { id: studentId }
   });
@@ -15,7 +14,7 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
     throw new Error('Aluno não encontrado');
   }
 
-  // 🔹 Buscar notas do aluno no banco
+
   const grades = await prisma.grade.findMany({
     where: { refStudent: studentId },
     include: { subject: true }
@@ -31,7 +30,7 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
 
   let startY = 50;
 
-  // 🔹 Organizar notas por bimestre
+
   const organizedGrades: Record<string, any[]> = { '1': [], '2': [], '3': [], '4': [] };
   grades.forEach(grade => {
     organizedGrades[grade.refBimester].push({
@@ -43,7 +42,7 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
     });
   });
 
-  // 🔹 Criar tabelas para cada bimestre
+
   Object.keys(organizedGrades).forEach(bimester => {
     if (organizedGrades[bimester].length > 0) {
       doc.setFontSize(14);

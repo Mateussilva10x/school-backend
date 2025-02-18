@@ -4,7 +4,7 @@ import * as subjectService from '../services/subjectService';
 export const getAllSubjects = async (req: Request, res: Response): Promise<void> => {
   try {
     const subjects = await subjectService.getAllSubjects();
-    res.json(subjects); // ✅ Agora não retornamos `Response`
+    res.json(subjects);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar disciplinas' });
   }
@@ -17,7 +17,7 @@ export const getSubjectById = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ message: 'Matéria não encontrada' });
       return;
     }
-    res.json(subject); // ✅ Agora não retornamos `Response`
+    res.json(subject);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar disciplina' });
   }

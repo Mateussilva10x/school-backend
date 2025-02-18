@@ -21,7 +21,7 @@ model Class {
   id           String       @id @default(uuid())
   name         String
   schoolYear   String
-  students     Student[] // Relação com os alunos
+  students     Student[]
   classDiaries ClassDiary[]
 }
 

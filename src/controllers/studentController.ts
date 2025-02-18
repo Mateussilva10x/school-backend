@@ -9,7 +9,7 @@ export const getFilteredStudents = async (req: Request, res: Response): Promise<
       classId as string | undefined,
       schoolYear as string | undefined
     );
-    res.json(students); // 🔹 Agora não retornamos `Response`
+    res.json(students);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar alunos' });
   }
@@ -22,7 +22,7 @@ export const getStudentById = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ message: 'Aluno não encontrado' });
       return;
     }
-    res.json(student); // 🔹 Agora não retornamos `Response`
+    res.json(student);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar aluno' });
   }

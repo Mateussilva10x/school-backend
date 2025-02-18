@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// 🔹 Filtrar notas por turma, ano letivo, disciplina e bimestre
 export const getGradesByFilters = async (
   classId: string,
   schoolYear: string,
@@ -18,7 +17,6 @@ export const getGradesByFilters = async (
   });
 };
 
-// 🔹 Obter notas de um aluno
 export const getGradesByStudent = async (
   studentId: string,
   schoolYear: string
@@ -31,7 +29,6 @@ export const getGradesByStudent = async (
   });
 };
 
-// 🔹 Obter notas de um aluno em um bimestre específico
 export const getGradesByStudentAndBimester = async (
   studentId: string,
   bimester: string
@@ -44,7 +41,6 @@ export const getGradesByStudentAndBimester = async (
   });
 };
 
-// 🔹 Salvar ou atualizar uma nota
 export const saveGrade = async (grade: {
   refStudent: string;
   refSubject: string;
@@ -57,7 +53,6 @@ export const saveGrade = async (grade: {
   try {
     console.log("🔹 Recebendo nota:", grade);
 
-    // 🔹 Verifica se `schoolYear` foi enviado
     if (!grade.schoolYear) {
       console.error("❌ ERRO: schoolYear não foi enviado!");
       throw new Error("O campo schoolYear é obrigatório.");
@@ -92,7 +87,7 @@ export const saveGrade = async (grade: {
           refStudent: grade.refStudent,
           refSubject: grade.refSubject,
           refBimester: grade.refBimester,
-          schoolYear: grade.schoolYear, // 🔹 Agora garantimos que está presente
+          schoolYear: grade.schoolYear,
           p1: grade.p1,
           p2: grade.p2,
           rec: grade.rec,
@@ -106,7 +101,6 @@ export const saveGrade = async (grade: {
   }
 };
 
-// 🔹 Calcular média das notas
 export const calculateAverage = (p1: number, p2: number): number => {
   return (p1 + p2) / 2;
 };

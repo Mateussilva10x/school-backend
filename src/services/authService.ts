@@ -5,12 +5,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || 'my-secret-key';
 
-// 🔹 Gerar token JWT
 const generateToken = (id: string, email: string, role: string): string => {
   return jwt.sign({ id, email, role }, SECRET_KEY, { expiresIn: '1h' });
 };
 
-// 🔹 Login com Prisma
 export const login = async (email: string, password: string) => {
   const user = await prisma.user.findUnique({ where: { email } });
 

@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// 🔹 Criar usuário
 export const createUser = async (email: string, password: string, role: 'ADMIN' | 'TEACHER') => {
   const hashedPassword = await bcrypt.hash(password, 10);
   return await prisma.user.create({
@@ -12,14 +11,12 @@ export const createUser = async (email: string, password: string, role: 'ADMIN' 
   });
 };
 
-// 🔹 Buscar todos os usuários
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
     select: { id: true, email: true, role: true, createdAt: true }
   });
 };
 
-// 🔹 Buscar usuário por ID
 export const getUserById = async (id: string) => {
   return await prisma.user.findUnique({
     where: { id },
@@ -27,7 +24,6 @@ export const getUserById = async (id: string) => {
   });
 };
 
-// 🔹 Atualizar usuário (e criptografar senha se alterada)
 export const updateUser = async (id: string, updateData: { email?: string; password?: string }) => {
   const updatedData: any = {};
   if (updateData.email) updatedData.email = updateData.email;
@@ -40,7 +36,6 @@ export const updateUser = async (id: string, updateData: { email?: string; passw
   });
 };
 
-// 🔹 Deletar usuário
 export const deleteUser = async (id: string) => {
   return await prisma.user.delete({
     where: { id }

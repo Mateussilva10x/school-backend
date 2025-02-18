@@ -5,7 +5,7 @@ export const getFilteredClasses = async (req: Request, res: Response) => {
   try {
     const { schoolYear } = req.query;
     const classes = await classService.getFilteredClasses(schoolYear as string | undefined);
-    res.json(classes); // 🔹 Removemos `return`
+    res.json(classes);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar turmas' });
   }
@@ -18,7 +18,7 @@ export const getClassById = async (req: Request, res: Response) => {
       res.status(404).json({ message: 'Turma não encontrada' });
       return;
     }
-    res.json(classItem); // 🔹 Removemos `return`
+    res.json(classItem);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar turma' });
   }
@@ -36,7 +36,7 @@ export const createClass = async (req: Request, res: Response) => {
 export const updateClass = async (req: Request, res: Response) => {
   try {
     const updatedClass = await classService.updateClass(req.params.id, req.body);
-    res.json(updatedClass); // 🔹 Removemos `return`
+    res.json(updatedClass);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao atualizar turma' });
   }

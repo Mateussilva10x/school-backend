@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// 🔹 Buscar resumos filtrados por turma, matéria ou data
 export const getClassDiaries = async (
   refClass?: string,
   refSubject?: string,
@@ -18,12 +17,10 @@ export const getClassDiaries = async (
   });
 };
 
-// 🔹 Buscar um resumo pelo ID
 export const getClassDiaryById = async (id: string) => {
   return await prisma.classDiary.findUnique({ where: { id } });
 };
 
-// 🔹 Criar um novo resumo
 export const createClassDiary = async (data: {
   schoolYear: string;
   refClass: string;
@@ -33,7 +30,6 @@ export const createClassDiary = async (data: {
   return await prisma.classDiary.create({ data });
 };
 
-// 🔹 Atualizar um resumo existente
 export const updateClassDiary = async (
   id: string,
   data: Partial<{
@@ -46,7 +42,6 @@ export const updateClassDiary = async (
   return await prisma.classDiary.update({ where: { id }, data });
 };
 
-// 🔹 Deletar um resumo
 export const deleteClassDiary = async (id: string) => {
   return await prisma.classDiary.delete({ where: { id } });
 };
