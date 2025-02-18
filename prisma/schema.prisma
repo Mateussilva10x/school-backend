@@ -53,6 +53,7 @@ model Grade {
   average     Float
   student     Student @relation(fields: [refStudent], references: [id])
   subject     Subject @relation(fields: [refSubject], references: [id])
+  bimester    Bimester @relation(fields: [refBimester], references: [id])
 }
 
 model User {
@@ -72,4 +73,11 @@ model ClassDiary {
   refSubject String
   subject    Subject  @relation(fields: [refSubject], references: [id])
   summary    String
+}
+
+model Bimester {
+  id    String  @id @default(uuid())
+  name  String  @unique
+
+  grades Grade[]
 }
