@@ -17,8 +17,8 @@ Este é o backend do sistema escolar, responsável pela gestão de alunos, profe
 
 ### 1️⃣ Clonar o Repositório
 ```sh
-$ git clone https://github.com/seu-usuario/seu-repositorio.git
-$ cd seu-repositorio
+$ git clone https://github.com/Mateussilva10x/school-backend.git
+$ cd school-backend
 ```
 
 ### 2️⃣ Instalar Dependências
@@ -35,7 +35,7 @@ No diretório raiz do projeto, crie um arquivo **.env** e configure as variávei
 
 ```
 DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_do_banco"
-JWT_SECRET="sua_chave_secreta"
+JWT_SECRET=my-secret-key
 PORT=5000
 ```
 
