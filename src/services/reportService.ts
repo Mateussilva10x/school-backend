@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const generateStudentReport = async (studentId: string): Promise<Buffer> => {
-
   const student = await prisma.student.findUnique({
     where: { id: studentId }
   });
@@ -14,13 +13,14 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
     throw new Error('Aluno não encontrado');
   }
 
-
   const grades = await prisma.grade.findMany({
     where: { refStudent: studentId },
-    include: { subject: true }
+    include: { subject: true, bimester: true }
   });
 
+  const bimesters = await prisma.bimester.findMany();
   const doc = new jsPDF();
+
   doc.setFontSize(16);
   doc.text(`Boletim Escolar`, 105, 15, { align: 'center' });
 
@@ -30,9 +30,17 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
 
   let startY = 50;
 
+  // 🔹 Inicializa um objeto organizado por bimestres
+  const organizedGrades: Record<string, any[]> = {};
+  bimesters.forEach(bimester => {
+    organizedGrades[bimester.id] = [];
+  });
 
-  const organizedGrades: Record<string, any[]> = { '1': [], '2': [], '3': [], '4': [] };
+  // 🔹 Insere as notas nos bimestres corretos
   grades.forEach(grade => {
+    if (!organizedGrades[grade.refBimester]) {
+      organizedGrades[grade.refBimester] = [];
+    }
     organizedGrades[grade.refBimester].push({
       subject: grade.subject?.name || 'Desconhecido',
       p1: grade.p1,
@@ -42,14 +50,15 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
     });
   });
 
-
-  Object.keys(organizedGrades).forEach(bimester => {
-    if (organizedGrades[bimester].length > 0) {
+  // 🔹 Adiciona os bimestres ao PDF
+  bimesters.forEach(bimester => {
+    const bimesterId = bimester.id;
+    if (organizedGrades[bimesterId].length > 0) {
       doc.setFontSize(14);
-      doc.text(`${bimester}º Bimestre`, 20, startY);
+      doc.text(`${bimester.name}`, 20, startY);
       startY += 10;
 
-      const tableData = organizedGrades[bimester].map(g => [
+      const tableData = organizedGrades[bimesterId].map(g => [
         g.subject,
         g.p1 ?? '-',
         g.p2 ?? '-',
@@ -70,5 +79,6 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
     }
   });
 
-  return doc.output('arraybuffer');
+  // 🔹 Retorna o PDF como buffer corretamente
+  return Buffer.from(doc.output('arraybuffer'));
 };

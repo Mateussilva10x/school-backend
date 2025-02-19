@@ -10,6 +10,7 @@ import subjectRoutes from "./routes/subjectRoutes";
 import gradesRoutes from "./routes/gradesRoutes";
 import classDiaryRoutes from "./routes/classDiaryRoutes";
 import userRoutes from "./routes/userRoutes";
+import bimesterRoutes from "./routes/bimesterRoutes";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/grades", gradesRoutes);
 app.use("/api/class-diary", classDiaryRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/bimesters', bimesterRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
