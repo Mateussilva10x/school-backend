@@ -1,19 +1,35 @@
 import { Request, Response } from "express";
 import * as classDiaryService from "../services/classDiaryService";
 
-export const getClassDiaries = async (req: Request, res: Response) => {
+export const getClassDiaries = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { refClass, refSubject, date } = req.query;
+    const { refClass, refSubject, startDate, endDate } = req.query;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+
+      const differenceInDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+      if (differenceInDays > 30) {
+        res.status(400).json({ message: "O intervalo máximo permitido é de 30 dias." });
+        return;
+      }
+    }
+
     const diaries = await classDiaryService.getClassDiaries(
       refClass as string,
       refSubject as string,
-      date as string
+      startDate as string,
+      endDate as string
     );
-    res.json(diaries);
+
+    res.status(200).json(diaries);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar resumos", error });
+    console.error("Erro ao buscar resumos:", error);
+    res.status(500).json({ message: "Erro ao buscar resumos", error: (error as Error).message });
   }
 };
+
 
 export const getClassDiaryById = async (
   req: Request,
