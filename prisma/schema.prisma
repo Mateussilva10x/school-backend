@@ -62,6 +62,8 @@ model User {
   password  String
   role      String   @default("TEACHER")
   createdAt DateTime @default(now())
+
+  classDiaries ClassDiary[]
 }
 
 model ClassDiary {
@@ -73,6 +75,8 @@ model ClassDiary {
   refSubject String
   subject    Subject  @relation(fields: [refSubject], references: [id])
   summary    String
+  createdBy  String?
+  user       User?     @relation(fields: [createdBy], references: [id])
 }
 
 model Bimester {

@@ -6,7 +6,7 @@ export const getClassDiaries = async (
   refClass?: string,
   refSubject?: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ) => {
   let dateFilter = {};
 
@@ -54,6 +54,7 @@ export const createClassDiary = async (data: {
   refClass: string;
   refSubject: string;
   summary: string;
+  createdBy: string
 }) => {
   return await prisma.classDiary.create({ data });
 };

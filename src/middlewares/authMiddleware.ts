@@ -1,25 +1,39 @@
+import { PrismaClient } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'my-secret-key';
+const prisma = new PrismaClient();
 
-export interface AuthRequest extends Request {
-  user?: { id: string; email: string; role: string };
-}
-
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  const token = req.header('Authorization')?.split(' ')[1];
+export const authenticateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    res.status(403).json({ message: 'Acesso negado. Token não fornecido.' });
+    res.status(401).json({ message: "Token não fornecido" });
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as { id: string; email: string; role: string };
-    req.user = decoded;
+    const decoded = jwt.verify(token, SECRET_KEY) as { id: string };
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { id: true, email: true, role: true }, // ✅ Agora só pegamos os campos necessários
+    });
+
+    if (!user) {
+      res.status(401).json({ message: "Usuário não encontrado" });
+      return;
+    }
+
+    req.user = user; // ✅ Sem erro de tipagem agora
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token inválido ou expirado' });
+    res.status(403).json({ message: "Token inválido" });
   }
 };

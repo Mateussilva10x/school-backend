@@ -55,14 +55,23 @@ export const getClassDiaryById = async (
   }
 };
 
-export const createClassDiary = async (req: Request, res: Response) => {
+export const createClassDiary = async (req: Request, res: Response): Promise<void> => {
   try {
-    const newDiary = await classDiaryService.createClassDiary(req.body);
+    if (!req.user) {
+      res.status(403).json({ message: "Usuário não autenticado" });
+      return;
+    }
+
+    const newDiary = await classDiaryService.createClassDiary({
+      ...req.body,
+      createdBy: req.user.id, // ✅ Agora `req.user.id` é reconhecido corretamente
+    });
+
     res.status(201).json(newDiary);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao criar resumo", error });
+    res.status(500).json({ message: "Erro ao criar resumo", error: (error as Error).message });
   }
-};
+}
 
 export const updateClassDiary = async (req: Request, res: Response) => {
   try {
