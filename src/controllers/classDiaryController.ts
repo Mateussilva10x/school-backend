@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../middlewares/authMiddleware";
 import * as classDiaryService from "../services/classDiaryService";
 
-export const getClassDiaries = async (req: Request, res: Response): Promise<void> => {
+export const getClassDiaries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { refClass, refSubject, startDate, endDate } = req.query;
 
@@ -30,11 +31,7 @@ export const getClassDiaries = async (req: Request, res: Response): Promise<void
   }
 };
 
-
-export const getClassDiaryById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getClassDiaryById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const diaryEntry = await classDiaryService.getClassDiaryById(id);
@@ -46,16 +43,14 @@ export const getClassDiaryById = async (
 
     res.json(diaryEntry);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Erro ao buscar registro do diário",
-        error: (error as Error).message,
-      });
+    res.status(500).json({
+      message: "Erro ao buscar registro do diário",
+      error: (error as Error).message,
+    });
   }
 };
 
-export const createClassDiary = async (req: Request, res: Response): Promise<void> => {
+export const createClassDiary = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(403).json({ message: "Usuário não autenticado" });
@@ -71,9 +66,9 @@ export const createClassDiary = async (req: Request, res: Response): Promise<voi
   } catch (error) {
     res.status(500).json({ message: "Erro ao criar resumo", error: (error as Error).message });
   }
-}
+};
 
-export const updateClassDiary = async (req: Request, res: Response) => {
+export const updateClassDiary = async (req: AuthRequest, res: Response) => {
   try {
     const updatedDiary = await classDiaryService.updateClassDiary(
       req.params.id,
@@ -85,7 +80,7 @@ export const updateClassDiary = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteClassDiary = async (req: Request, res: Response) => {
+export const deleteClassDiary = async (req: AuthRequest, res: Response) => {
   try {
     await classDiaryService.deleteClassDiary(req.params.id);
     res.status(204).send();

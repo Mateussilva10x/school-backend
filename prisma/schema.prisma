@@ -75,8 +75,8 @@ model ClassDiary {
   refSubject String
   subject    Subject  @relation(fields: [refSubject], references: [id])
   summary    String
-  createdBy  String?
-  user       User?     @relation(fields: [createdBy], references: [id])
+  createdBy  String
+  user       User     @relation(fields: [createdBy], references: [id])
 }
 
 model Bimester {

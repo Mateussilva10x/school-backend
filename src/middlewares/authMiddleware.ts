@@ -5,8 +5,12 @@ import jwt from 'jsonwebtoken';
 const SECRET_KEY = process.env.JWT_SECRET || 'my-secret-key';
 const prisma = new PrismaClient();
 
+export interface AuthRequest extends Request {
+  user?: { id: string; email: string; role: string };
+}
+
 export const authenticateToken = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
