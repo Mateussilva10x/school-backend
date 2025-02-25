@@ -13,6 +13,9 @@ export const getGradesByFilters = async (
       refSubject: subjectId,
       refBimester: bimester,
       schoolYear,
+      refStudent: {
+        in: (await prisma.student.findMany({ where: { refClass: classId }, select: { id: true } })).map(s => s.id),
+      },
     },
   });
 };
@@ -58,7 +61,7 @@ export const saveGrade = async (grade: {
       throw new Error("O campo schoolYear é obrigatório.");
     }
 
-    const average = (grade.p1 + grade.p2) / 2;
+    const average = grade.rec > 0 ? Math.max((grade.p1 + grade.p2) / 2, grade.rec) : (grade.p1 + grade.p2) / 2;
 
     const existingGrade = await prisma.grade.findFirst({
       where: {
