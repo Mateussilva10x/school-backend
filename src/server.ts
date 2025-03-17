@@ -11,6 +11,7 @@ import gradesRoutes from "./routes/gradesRoutes";
 import classDiaryRoutes from "./routes/classDiaryRoutes";
 import userRoutes from "./routes/userRoutes";
 import bimesterRoutes from "./routes/bimesterRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
 
 dotenv.config();
 
@@ -26,8 +27,9 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/grades", gradesRoutes);
 app.use("/api/class-diary", classDiaryRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/bimesters', bimesterRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/bimesters", bimesterRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
