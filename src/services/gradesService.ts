@@ -14,7 +14,12 @@ export const getGradesByFilters = async (
       refBimester: bimester,
       schoolYear,
       refStudent: {
-        in: (await prisma.student.findMany({ where: { refClass: classId }, select: { id: true } })).map(s => s.id),
+        in: (
+          await prisma.student.findMany({
+            where: { refClass: classId },
+            select: { id: true },
+          })
+        ).map((s: any) => s.id),
       },
     },
   });
@@ -61,7 +66,10 @@ export const saveGrade = async (grade: {
       throw new Error("O campo schoolYear é obrigatório.");
     }
 
-    const average = grade.rec > 0 ? Math.max((grade.p1 + grade.p2) / 2, grade.rec) : (grade.p1 + grade.p2) / 2;
+    const average =
+      grade.rec > 0
+        ? Math.max((grade.p1 + grade.p2) / 2, grade.rec)
+        : (grade.p1 + grade.p2) / 2;
 
     const existingGrade = await prisma.grade.findFirst({
       where: {
@@ -98,7 +106,7 @@ export const saveGrade = async (grade: {
         },
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Erro ao salvar nota:", error);
     throw new Error("Erro interno ao salvar nota.");
   }

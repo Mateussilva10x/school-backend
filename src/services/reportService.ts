@@ -1,28 +1,30 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { PrismaClient } from '@prisma/client';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const generateStudentReport = async (studentId: string): Promise<Buffer> => {
+export const generateStudentReport = async (
+  studentId: string
+): Promise<Buffer> => {
   const student = await prisma.student.findUnique({
-    where: { id: studentId }
+    where: { id: studentId },
   });
 
   if (!student) {
-    throw new Error('Aluno não encontrado');
+    throw new Error("Aluno não encontrado");
   }
 
   const grades = await prisma.grade.findMany({
     where: { refStudent: studentId },
-    include: { subject: true, bimester: true }
+    include: { subject: true, bimester: true },
   });
 
   const bimesters = await prisma.bimester.findMany();
   const doc = new jsPDF();
 
   doc.setFontSize(16);
-  doc.text(`Boletim Escolar`, 105, 15, { align: 'center' });
+  doc.text(`Boletim Escolar`, 105, 15, { align: "center" });
 
   doc.setFontSize(12);
   doc.text(`Aluno: ${student.name}`, 20, 30);
@@ -30,49 +32,50 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
 
   let startY = 50;
 
-  // 🔹 Inicializa um objeto organizado por bimestres
   const organizedGrades: Record<string, any[]> = {};
-  bimesters.forEach(bimester => {
+  bimesters.forEach((bimester: any) => {
     organizedGrades[bimester.id] = [];
   });
 
-  // 🔹 Insere as notas nos bimestres corretos
-  grades.forEach(grade => {
+  grades.forEach((grade: any) => {
     if (!organizedGrades[grade.refBimester]) {
       organizedGrades[grade.refBimester] = [];
     }
     organizedGrades[grade.refBimester].push({
-      subject: grade.subject?.name || 'Desconhecido',
+      subject: grade.subject?.name || "Desconhecido",
       p1: grade.p1,
       p2: grade.p2,
       average: grade.average,
-      rec: grade.rec
+      rec: grade.rec,
     });
   });
 
-  // 🔹 Adiciona os bimestres ao PDF
-  bimesters.forEach(bimester => {
+  bimesters.forEach((bimester: any) => {
     const bimesterId = bimester.id;
     if (organizedGrades[bimesterId].length > 0) {
       doc.setFontSize(14);
       doc.text(`${bimester.name}`, 20, startY);
       startY += 10;
 
-      const tableData = organizedGrades[bimesterId].map(g => [
+      const tableData = organizedGrades[bimesterId].map((g) => [
         g.subject,
-        g.p1 ?? '-',
-        g.p2 ?? '-',
-        g.average ?? '-',
-        g.rec ?? '-'
+        g.p1 ?? "-",
+        g.p2 ?? "-",
+        g.average ?? "-",
+        g.rec ?? "-",
       ]);
 
       (doc as any).autoTable({
         startY,
-        head: [['Matéria', 'P1', 'P2', 'Média', 'Recuperação']],
+        head: [["Matéria", "P1", "P2", "Média", "Recuperação"]],
         body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontStyle: 'bold' },
-        columnStyles: { 0: { cellWidth: 50 } }
+        theme: "striped",
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+        },
+        columnStyles: { 0: { cellWidth: 50 } },
       });
 
       startY = (doc as any).lastAutoTable.finalY + 10;
@@ -80,5 +83,5 @@ export const generateStudentReport = async (studentId: string): Promise<Buffer> 
   });
 
   // 🔹 Retorna o PDF como buffer corretamente
-  return Buffer.from(doc.output('arraybuffer'));
+  return Buffer.from(doc.output("arraybuffer"));
 };
